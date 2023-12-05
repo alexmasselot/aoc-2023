@@ -1,3 +1,8 @@
+package day01
+
+import println
+import readInput
+
 fun extractDigits(input: String): List<Int> {
     val wordToDigit = mapOf(
         "zero" to "0",

@@ -1,7 +1,9 @@
+package day02
+
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-class Day02KtTest {
+class PuzzleKtTest {
     @Test
     fun testReadOneDraw() {
         val given = "3 blue, 4 red"

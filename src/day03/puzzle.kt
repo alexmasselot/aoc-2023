@@ -1,3 +1,17 @@
+package day03
+
+import and
+import mapMatrix
+import mask
+import or
+import println
+import readInput
+import shiftE
+import shiftN
+import shiftS
+import shiftW
+import zipApply
+
 fun numberSpread(input: String): List<Int?> {
     val re = Regex("[0-9]+")
     fun f(acc: List<Int?>, rem: String): List<Int?> {

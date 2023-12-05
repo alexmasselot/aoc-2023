@@ -1,3 +1,7 @@
+package day02
+
+import println
+import readInput
 import kotlin.math.max
 
 val col_idx = mapOf(

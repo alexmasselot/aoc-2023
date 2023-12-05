@@ -1,8 +1,10 @@
+package day03
+
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.Assertions.*
 
-class Day03KtTest {
+class PuzzleKtTest {
 
     @Test
     fun testNumberSpread() {
