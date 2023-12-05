@@ -1,7 +1,11 @@
+package day__
 
+import day05.main
+import println
+import readInput
 
 fun main() {
-    val day = "__"
+    val day = ::main.javaClass.`package`.name.takeLast(2)
     // Locate digit in a string and return the first and the last ones concatenated
 
 
@@ -16,7 +20,7 @@ fun main() {
     }
 
     // test if implementation meets criteria from the description, like:
-    val testInput = readInput("day$day/part1_test")
+    val testInput = readInput("day$day/input_test")
     val p1 = part1(testInput)
     println(p1)
     check(part1(testInput) == 42)
@@ -26,7 +30,7 @@ fun main() {
 //    println(p2)
 //    check( p2 == 281)
 
-    val input = readInput("day$day/part1")
+    val input = readInput("day$day/input")
     part1(input).println()
     part2(input).println()
 }
