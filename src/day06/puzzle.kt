@@ -56,7 +56,6 @@ fun main() {
     println(p1)
     check(part1(testInput) == 288)
 
-//    val testInput2 = readInput("day$day/part2_test")
     val p2 = part2(testInput)
     println(p2)
     check( p2 == 71503L)
