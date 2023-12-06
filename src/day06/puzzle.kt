@@ -1,6 +1,5 @@
 package day06
 
-import day05.main
 import println
 import readInput
 import kotlin.math.ceil

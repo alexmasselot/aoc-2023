@@ -1,6 +1,5 @@
 package day__
 
-import day05.main
 import println
 import readInput
 
