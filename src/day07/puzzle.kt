@@ -1,4 +1,4 @@
-package day__
+package day07
 
 import day05.main
 import println
