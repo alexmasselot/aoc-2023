@@ -15,10 +15,13 @@ data class Boat(val time: Long, val distance: Long) {
     }
 
     fun pressBeatRecord() = (1..time).filter { moveForTime(it) > distance }
+
+
     fun countPressBeatRecord(): Long {
-        val p1 = (time - sqrt(1.0 * (time * time - 4 * distance))) / 2
-        val p2 = (time + sqrt(1.0 * (time * time - 4 * distance))) / 2
-        return (floor(p2) - ceil(p1) + 1).toLong()
+        return (1..time).count { moveForTime(it) > distance }.toLong()
+//        val p1 = (time - sqrt(1.0 * (time * time - 4 * distance))) / 2
+//        val p2 = (time + sqrt(1.0 * (time * time - 4 * distance))) / 2
+//        return (floor(p2) - ceil(p1) + 1).toLong()
     }
 
 
