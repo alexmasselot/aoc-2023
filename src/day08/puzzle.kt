@@ -44,17 +44,13 @@ data class BinaryGraph(val nodes: Map<String, Int>, val lefts: List<Int>, val ri
         fun parseInput(input: List<String>): BinaryGraph {
             val nodes = input.map { it.split("=")[0].trim() }.mapIndexed { index, it -> it to index }.toMap()
 
-            val lefts = input.map { it.split("=")[1].trim() }
-                .map { it.substring(1..3) }
-                .map {
-                    nodes[it]!!
-                }
-
-            val rights = input.map { it.split("=")[1].trim() }
-                .map { it.substring(6..8) }
-                .map {
-                    nodes[it]!!
-                }
+            val reLeftRight = """.*\(([A-Z]{3}), ([A-Z]{3})\)""".toRegex()
+            val lrs = input.map{
+                val (l, r) = reLeftRight.find(it)!!.destructured
+                l to r
+            }
+            val lefts = lrs.map{nodes[it.first]!!}
+            val rights = lrs.map{nodes[it.second]!!}
 
             return BinaryGraph(nodes, lefts, rights)
         }
