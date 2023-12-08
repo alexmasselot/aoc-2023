@@ -44,6 +44,7 @@ class BinaryGraphTest {
         )
         assertEquals(2, got)
     }
+
     @Test
     fun TestCountWalks() {
         val got = graph.countWalks(
@@ -52,5 +53,21 @@ class BinaryGraphTest {
             "RL"
         )
         assertEquals(2, got)
+    }
+
+    @Test
+    fun testFindLCM1() {
+        val given = listOf(3L, 5L, 7L)
+        val got = BinaryGraph.findLCM(given)
+
+        assertEquals(3 * 5 * 7, got)
+    }
+
+    @Test
+    fun testFindLCM2() {
+        val given = listOf(3L * 5, 5L * 3, 7L * 5 * 7)
+        val got = BinaryGraph.findLCM(given)
+
+        assertEquals(3 * 5 * 7 * 7, got)
     }
 }

@@ -2,6 +2,8 @@ package day08
 
 import println
 import readInput
+import kotlin.math.abs
+import kotlin.math.sqrt
 
 data class BinaryGraph(val nodes: Map<String, Int>, val lefts: List<Int>, val rights: List<Int>) {
     fun get(name: String): Int {
@@ -15,8 +17,11 @@ data class BinaryGraph(val nodes: Map<String, Int>, val lefts: List<Int>, val ri
         directionIndex: Int = 0,
         countSteps: Int = 0
     ): Int {
-        if (target == from) {
+        if (target == from && countSteps > 0) {
             return countSteps
+        }
+        if (countSteps > nodes.size * nodes.size) {
+            return -1
         }
 
         val d = directions[directionIndex]
@@ -53,6 +58,21 @@ data class BinaryGraph(val nodes: Map<String, Int>, val lefts: List<Int>, val ri
 
             return BinaryGraph(nodes, lefts, rights)
         }
+
+        fun findLCM(numbers: List<Long>): Long {
+            require(numbers.isNotEmpty()) { "List must not be empty" }
+
+            fun gcd(a: Long, b: Long): Long {
+                return if (b == 0L) abs(a) else gcd(b, a % b)
+            }
+
+            fun lcm(a: Long, b: Long): Long {
+                return if (a == 0L || b == 0L) 0 else abs(a * b) / gcd(a, b)
+            }
+
+            return numbers.reduce { acc, num -> lcm(acc, num) }
+        }
+
     }
 }
 
@@ -66,21 +86,37 @@ fun main() {
         return graph.countWalks("ZZZ", "AAA", directions)
     }
 
-    fun part2(input: List<String>): Int {
+    fun part2(input: List<String>): Long {
         val directions = input[0]
         val graph = BinaryGraph.parseInput(input.drop(2))
 
         val starts = graph.nodes.keys.filter { it.endsWith("A") }
         val ends = graph.nodes.keys.filter { it.endsWith("Z") }
-        return 42
 
+        /**
+         * There are conditions on the entry set
+         * each of the i .*A goes to one *.Z n(i)
+         * each .*Z goes only to itself with m(i)=n(i)
+         * WE just need then to dinf the lowest common multiplier
+         */
 
+        val ns = starts.map { start ->
+            val e = ends.first() { end ->
+                val count = graph.countWalks(end, start, directions)
+                count > 0
+            }
+            val n = graph.countWalks(e, start, directions)
+            val m = graph.countWalks(e, e, directions)
+            println("$start\t$e\t$n\t$m")
+            check(m == n)
+            n.toLong()
+        }
+        return BinaryGraph.findLCM(ns)
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("day$day/input_test")
     val p1 = part1(testInput)
-    println(p1)
     check(part1(testInput) == 2)
 
 //    val p2 = part2(testInput)
