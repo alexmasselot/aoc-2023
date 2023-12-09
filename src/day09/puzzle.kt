@@ -17,7 +17,7 @@ object Report {
 
     fun next(input: List<Int>): Int {
         val lds = firstLastDeltas(input).map { it.second }
-        return lds.reversed().plus(input.last()).fold(0) { acc, i -> acc + i }
+        return lds.sum() + input.last()
     }
 
     fun previous(input: List<Int>): Int {
@@ -49,7 +49,7 @@ fun main() {
 
     val p2 = part2(testInput)
     println(p2)
-    check( p2 == 2)
+    check(p2 == 2)
 
     val input = readInput("day$day/input")
     part1(input).println()
