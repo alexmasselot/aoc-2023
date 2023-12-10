@@ -20,6 +20,9 @@ fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteA
  */
 fun Any?.println() = println(this)
 
+fun <T> List<List<T>>.nbRows() = this.size
+fun <T> List<List<T>>.nbCols() = this.first().size
+
 /**
  * takes a list of string as input and returns a list of list of booleam, by applying a function to each character
  */
@@ -29,6 +32,20 @@ fun List<String>.mapToBooleanList(f: (Char) -> Boolean): List<List<Boolean>> =
 fun <S, T> List<List<T>>.mapMatrix(f: (T) -> S): List<List<S>> =
     this.map { it.map(f) }
 
+fun <T> List<List<T>>.set(row: Int, col: Int, value: T): List<List<T>> {
+    val tRow = get(row)
+    val modifiedRow = tRow.take(col).plus(value).plus(tRow.drop(col + 1))
+
+    return take(row)
+        .plusElement(modifiedRow)
+        .plus(drop(row + 1))
+
+}
+fun <T>List<List<T>>.countIf(f: (T) -> Boolean): Int =
+    this.map { it.count(f) }.sum()
+
+fun <T> emptyMat(nbRow: Int, nbCol: Int, value: T): List<List<T>> =
+    (1..nbRow).map { List(nbCol) { value } }
 
 /** With a matrix of boolean, apply a lateral shift of 1 to the right, insert a given value on the left, and return the new matrix */
 fun <T> List<List<T>>.shiftE(value: T): List<List<T>> =
@@ -51,11 +68,19 @@ fun List<List<Boolean>>.toString(c: Char = 'X'): String {
     return this.map { it.map { if (it) c else "." }.joinToString("") }.joinToString("\n")
 }
 
+fun <T> List<List<T>>.toStringMat(): String {
+    return this.map { it.joinToString("") }.joinToString("\n")
+}
+
+
 fun <S, T, U> List<List<S>>.zipApply(
     other: List<List<T>>,
     f: (a: S, b: T) -> U
 ): List<List<U>> =
     this.zip(other).map { (a, b) -> a.zip(b).map { (x, y) -> f(x, y) } }
+
+fun List<List<Boolean>>.not(): List<List<Boolean>> =
+    this.map { it.map { !it } }
 
 fun List<List<Boolean>>.or(other: List<List<Boolean>>): List<List<Boolean>> =
     this.zipApply(other) { a, b -> a || b }

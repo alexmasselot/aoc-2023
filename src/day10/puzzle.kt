@@ -1,7 +1,23 @@
 package day10
 
+import and
+import countIf
+import emptyMat
+import mapMatrix
+import mask
+import nbCols
+import nbRows
+import not
+import or
 import println
 import readInput
+import set
+import shiftE
+import shiftN
+import shiftS
+import shiftW
+import toStringMat
+import zipApply
 
 data class Mover(val position: List<Int>, val direction: List<Int>) {
     fun step(pipeUnit: PipeUnit): Mover {
@@ -9,6 +25,15 @@ data class Mover(val position: List<Int>, val direction: List<Int>) {
         return Mover(listOf(position[0] + d[0], position[1] + d[1]), d)
     }
 
+    /**
+     * -1 => left
+     * 0 => straight
+     * 1 => right
+     */
+    fun turning(pipeUnit: PipeUnit): Int {
+        val newDir = pipeUnit.steer(direction)
+        return newDir[0] * direction[1] - newDir[1] * direction[0]
+    }
 }
 
 data class PipeUnit(val symbol: Char, val matrix: List<List<Int>>, val possible: Set<List<Int>>) {
@@ -48,22 +73,72 @@ data class PipeWorld(val start: List<Int>, val pipes: List<List<PipeUnit?>>) {
 
     fun step(mover: Mover) = mover.step(pipes[mover.position[0]][mover.position[1]]!!)
 
-    fun <T> walkTheFence(init: T, f: (T, Mover) -> T): T {
+    private fun <T> walkTheFence(init: T, reverse: Boolean = false, f: (T, Mover) -> T): T {
         tailrec fun handler(acc: T, m: Mover): T {
-            val next = f(acc, m)
             if (m.position == start) {
                 return acc
             }
             return handler(f(acc, m), step(m))
         }
 
-        return handler(init, possibleStarts().first())
+        val ps = if (reverse) possibleStarts()[1] else possibleStarts()[0]
+        return handler(init, ps)
     }
 
     fun furthestPath(): Int {
         val n = walkTheFence(0) { i: Int, _: Mover -> i + 1 }
         return n / 2 + n % 2
+    }
 
+    fun turningTotal(reverse: Boolean = false): Int {
+        return walkTheFence(0, reverse) { i: Int, m: Mover -> i + m.turning(pipes[m.position[0]][m.position[1]]!!) }
+    }
+
+    fun fenceMap(): List<List<Boolean>> {
+        val init = emptyMat(pipes.size, pipes[0].size, false).set(start[0], start[1], true)
+        return walkTheFence(init) { acc: List<List<Boolean>>, m: Mover -> acc.set(m.position[0], m.position[1], true) }
+    }
+
+    fun paintInside(): List<List<Boolean>> {
+        val fence = fenceMap()
+        val isTurningRight = turningTotal() > 0
+
+        val init = emptyMat(pipes.size, pipes[0].size, false)
+        val insideAgainstBorder =  walkTheFence(init, !isTurningRight) { acc: List<List<Boolean>>, m: Mover ->
+            val pipe = pipes[m.position[0]][m.position[1]]!!
+
+
+            listOf(m.direction, pipe.steer(m.direction)).map { dir ->
+                val rightDir = listOf(
+                    dir[1],
+                    -dir[0]
+                )
+                listOf(m.position[0] + rightDir[0], m.position[1] + rightDir[1])
+            }
+                .filter { pos ->
+                    pos[0] >= 0
+                            && pos[1] >= 0
+                            && pos[0] < pipes.nbRows()
+                            && pos[1] < pipes.nbCols()
+                            && !fence[pos[0]][pos[1]]
+                }
+                .fold(acc) { acc, pos ->
+                    acc.set(pos[0], pos[1], true)
+                }
+        }
+
+        tailrec fun growInside(inside: List<List<Boolean>>): List<List<Boolean>> {
+            val newInside = inside.or(inside.shiftW(false))
+                .or(inside.shiftE(false))
+                .or(inside.shiftN(false))
+                .or(inside.shiftS(false))
+                .and(fence.not())
+            if(newInside == inside) {
+                return inside
+            }
+            return growInside(newInside)
+        }
+        return growInside(insideAgainstBorder)
     }
 
 
@@ -97,8 +172,16 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
+        val pw = PipeWorld.fromInput(input)
+        val gotMap = pw.pipes.mapMatrix { it?.symbol ?: '.' }
+            .set(pw.start[0], pw.start[1], 'S')
+            .zipApply(pw.paintInside()) { m, inside ->
+                if (inside) 'I' else m
+            }
+            .toStringMat()
+        println(gotMap)
 
-        return 42
+        return pw.paintInside().countIf{ it }
     }
 
     // test if implementation meets criteria from the description, like:

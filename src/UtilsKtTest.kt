@@ -27,12 +27,31 @@ class UtilsKtTest {
             input.split("\n")
                 .mapToBooleanList { it == 'X' }
 
+        fun stringMat(input: String): List<List<Char>> =
+            input.split("\n")
+                .map { it.toList() }
+
         val matrix = """
         X..X.
         .X..X
         ...XX
         """.trimIndent()
 
+
+        @Test
+        fun testSet() {
+            val got = stringMat(matrix).set(2,1, 'Z')
+
+            val exp = stringMat(
+                """
+                X..X.
+                .X..X
+                .Z.XX
+            """.trimIndent()
+            )
+
+            assertEquals(exp, got)
+        }
 
         @Test
         fun testShiftE() {
@@ -93,14 +112,18 @@ class UtilsKtTest {
 
         @Test
         fun testOr() {
-            val given1 = stringToBool("""
+            val given1 = stringToBool(
+                """
                 X..X
                 .X.X
-            """.trimIndent())
-            val given2 = stringToBool("""
+            """.trimIndent()
+            )
+            val given2 = stringToBool(
+                """
                 .X.X
                 X..X
-            """.trimIndent())
+            """.trimIndent()
+            )
 
             val got = given1.or(given2)
 
@@ -112,16 +135,21 @@ class UtilsKtTest {
             )
             assertEquals(exp, got)
         }
+
         @Test
         fun testAnd() {
-            val given1 = stringToBool("""
+            val given1 = stringToBool(
+                """
                 X..X
                 .X.X
-            """.trimIndent())
-            val given2 = stringToBool("""
+            """.trimIndent()
+            )
+            val given2 = stringToBool(
+                """
                 .X.X
                 X..X
-            """.trimIndent())
+            """.trimIndent()
+            )
 
             val got = given1.and(given2)
 
