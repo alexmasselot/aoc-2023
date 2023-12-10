@@ -11,78 +11,72 @@ data class Mover(val position: List<Int>, val direction: List<Int>) {
 
 }
 
-data class PipeUnit(val matrix: List<List<Int>>, val possible: Set<List<Int>>) {
-    fun steer(direction: List<Int>) =
-        listOf(
-            direction[0] * matrix[0][0] + direction[1] * matrix[0][1],
-            direction[0] * matrix[1][0] + direction[1] * matrix[1][1]
-        )
+data class PipeUnit(val symbol: Char, val matrix: List<List<Int>>, val possible: Set<List<Int>>) {
+    fun steer(direction: List<Int>) = listOf(
+        direction[0] * matrix[0][0] + direction[1] * matrix[0][1],
+        direction[0] * matrix[1][0] + direction[1] * matrix[1][1]
+    )
 
 
     companion object {
         val letterSteps = mapOf(
-            "|" to (PipeUnit(listOf(listOf(1, 0), listOf(0, 1)), setOf(listOf(0, 1), listOf(0, -1)))),
-            "-" to (PipeUnit(listOf(listOf(1, 0), listOf(0, 1)), setOf(listOf(1, 0), listOf(-1, 0)))),
-            "L" to (PipeUnit(listOf(listOf(0, 1), listOf(1, 0)), setOf(listOf(0, 1), listOf(-1, 0)))),
-            "7" to (PipeUnit(listOf(listOf(0, 1), listOf(1, 0)), setOf(listOf(1, 0), listOf(0, 1)))),
-            "F" to (PipeUnit(listOf(listOf(0, -1), listOf(-1, 0)), setOf(listOf(-1, 0), listOf(0, -1)))),
-            "J" to (PipeUnit(listOf(listOf(0, -1), listOf(-1, 0)), setOf(listOf(0, 1), listOf(1, 0)))),
+            '|' to (PipeUnit('|', listOf(listOf(1, 0), listOf(0, 1)), setOf(listOf(1, 0), listOf(-1, 0)))),
+            '-' to (PipeUnit('-', listOf(listOf(1, 0), listOf(0, 1)), setOf(listOf(0, 1), listOf(0, -1)))),
+            'L' to (PipeUnit('L', listOf(listOf(0, 1), listOf(1, 0)), setOf(listOf(1, 0), listOf(0, -1)))),
+            '7' to (PipeUnit('7', listOf(listOf(0, 1), listOf(1, 0)), setOf(listOf(0, 1), listOf(1, 0)))),
+            'F' to (PipeUnit('F', listOf(listOf(0, -1), listOf(-1, 0)), setOf(listOf(0, -1), listOf(-1, 0)))),
+            'J' to (PipeUnit('J', listOf(listOf(0, -1), listOf(-1, 0)), setOf(listOf(1, 0), listOf(0, 1)))),
         )
     }
 }
 
 data class PipeWorld(val start: List<Int>, val pipes: List<List<PipeUnit?>>) {
-    fun possibleStarts(): List<Mover> =
-        listOf(
-            listOf(0, 1),
-            listOf(0, -1),
-            listOf(1, 0),
-            listOf(-1, 0),
-        ).filter {
-            start[0] + it[0] >= 0 && start[1] + it[1] >= 0
-        }
-            .filter {
-                pipes[start[0] + it[0]][start[1] + it[1]]?.possible?.contains(it) ?: false
-            }.map {
-                Mover(
-                    listOf(start[0] + it[0], start[1] + it[1]),
-                    it
-                )
-            }
+    fun possibleStarts(): List<Mover> = listOf(
+        listOf(0, 1),
+        listOf(0, -1),
+        listOf(1, 0),
+        listOf(-1, 0),
+    ).filter {
+        start[0] + it[0] >= 0 && start[1] + it[1] >= 0
+    }.filter {
+        pipes[start[0] + it[0]][start[1] + it[1]]?.possible?.contains(it) ?: false
+    }.map {
+        Mover(
+            listOf(start[0] + it[0], start[1] + it[1]), it
+        )
+    }
 
-    fun step(mover: Mover) =
-        mover.step(pipes[mover.position[0]][mover.position[1]]!!)
+    fun step(mover: Mover) = mover.step(pipes[mover.position[0]][mover.position[1]]!!)
+
+    fun <T> walkTheFence(init: T, f: (T, Mover) -> T): T {
+        tailrec fun handler(acc: T, m: Mover): T {
+            val next = f(acc, m)
+            if (m.position == start) {
+                return acc
+            }
+            return handler(f(acc, m), step(m))
+        }
+
+        return handler(init, possibleStarts().first())
+    }
 
     fun furthestPath(): Int {
-        val starts = possibleStarts()
-        fun handler(i: Int, m1: Mover, m2: Mover): Int {
-            if (m1.position == m2.position && i > 0) {
-                return i
-            }
-            return handler(i + 1, step(m1), step(m2))
-        }
+        val n = walkTheFence(0) { i: Int, _: Mover -> i + 1 }
+        return n / 2 + n % 2
 
-        return handler(1, starts[0], starts[1])
     }
 
 
     companion object {
-        /** transpose a list of lists */
-        fun <T> List<List<T>>.transpose(): List<List<T>> =
-            if (isEmpty()) listOf()
-            else (this[0].indices).map { col ->
-                map { row -> row[col] }
-            }
-
         fun fromInput(input: List<String>): PipeWorld {
-            val inputTR = input.map { it.toList() }.transpose()
+            val inputTR = input.map { it.toList() }
 
             val pipes = inputTR.map {
-                it.map { PipeUnit.letterSteps[it.toString()] }
+                it.map { PipeUnit.letterSteps[it] }
             }
 
-            val start = input.withIndex().first { (_, s) -> s.contains("S") }
-                .let { (i, s) -> listOf(s.indexOf('S'), i) }
+            val start =
+                input.withIndex().first { (_, s) -> s.contains("S") }.let { (i, s) -> listOf(i, s.indexOf('S')) }
             return PipeWorld(start, pipes)
         }
     }
@@ -119,5 +113,6 @@ fun main() {
 
     val input = readInput("day$day/input")
     part1(input).println()
+    check(part1(input) == 6717)
     part2(input).println()
 }

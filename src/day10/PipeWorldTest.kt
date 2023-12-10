@@ -16,7 +16,7 @@ class PipeWorldTest{
     fun testParseInput(){
         val pw = PipeWorld.fromInput(map)
 
-        assertEquals(listOf(2,1), pw.start)
+        assertEquals(listOf(1,2), pw.start)
     }
 
     @Test
@@ -25,8 +25,8 @@ class PipeWorldTest{
         val got = pw.possibleStarts()
 
         assertEquals(listOf(
-            Mover(listOf(2,2), listOf(0,1)),
-            Mover(listOf(3,1), listOf(1,0)),
+            Mover(listOf(1,3), listOf(0,1)),
+            Mover(listOf(2,2), listOf(1,0)),
         ), got)
     }
 
@@ -43,8 +43,8 @@ class PipeWorldTest{
         val got = pw.possibleStarts()
 
         assertEquals(listOf(
-            Mover(listOf(0,3), listOf(0,1)),
-            Mover(listOf(1,2), listOf(1,0)),
+            Mover(listOf(2,1), listOf(0,1)),
+            Mover(listOf(3,0), listOf(1,0)),
         ), got)
     }
 
