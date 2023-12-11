@@ -54,6 +54,21 @@ class UtilsKtTest {
         }
 
         @Test
+        fun testFindMatches() {
+            val got = stringMat(matrix).findIndexes { it == 'X' }
+
+            val expected = listOf(
+                Pair(0,0),
+                Pair(0,3),
+                Pair(1,1),
+                Pair(1,4),
+                Pair(2,3),
+                Pair(2,4),
+            )
+            assertEquals(expected, got)
+        }
+
+        @Test
         fun testShiftE() {
             val got = stringToBool(matrix).shiftE(true)
 

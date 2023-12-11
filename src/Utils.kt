@@ -44,6 +44,11 @@ fun <T> List<List<T>>.set(row: Int, col: Int, value: T): List<List<T>> {
 fun <T>List<List<T>>.countIf(f: (T) -> Boolean): Int =
     this.map { it.count(f) }.sum()
 
+fun <T>List<List<T>>.findIndexes(f: (T) -> Boolean):List<Pair<Int, Int>> =
+    this.mapIndexed { i, row -> row.mapIndexed { j, t -> if(f(t)) Pair(i,j) else null } }
+        .flatten()
+        .filterNotNull()
+
 fun <T> emptyMat(nbRow: Int, nbCol: Int, value: T): List<List<T>> =
     (1..nbRow).map { List(nbCol) { value } }
 
