@@ -1,7 +1,6 @@
 package day11
 
-import day10.PipeUnit
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
@@ -33,44 +32,40 @@ class UniverseTest {
                 listOf(false, true, false),
                 listOf(false, false, true),
                 listOf(true, true, true)
-            )
+            ),
+            listOf(0, 1, 2),
+            listOf(0, 1, 2),
         )
         assertEquals(expected, got)
     }
 
     @Test
-    fun testExpand(){
+    fun testShiftEmpty() {
+        val given = listOf(false, false, true, true, false, false)
+        val got = Universe.shiftEmpty(given, 11)
+
+        assertEquals(listOf(0, 1, 2, 13, 24, 25), got)
+    }
+
+    @Test
+    fun testExpand() {
         val u = Universe.parseInput(input)
-        val got = u.expand()
+        val got = u.expand(2)
 
-        val expected = """
-            ....#........
-            .........#...
-            #............
-            .............
-            .............
-            ........#....
-            .#...........
-            ............#
-            .............
-            .............
-            .........#...
-            #....#.......
-        """.trimIndent()
-
-        assertEquals(expected, got.toString())
+        assertEquals(listOf(0, 1, 2, 4, 5, 6, 8, 9, 10, 12), got.colPos)
+        assertEquals(listOf(0, 1, 2, 3, 5, 6, 7, 8, 10, 11), got.rowPos)
     }
 
     @TestFactory
     fun testDistance() = listOf(
-        Pair(6 to 1, 6 to 2) to 1,
-        Pair(6 to 1, 6 to 3) to 2,
-        Pair(6 to 1, 7 to 1) to 1,
-        Pair(6 to 1, 7 to 2) to 2,
-        Pair(6 to 1, 7 to 3) to 3,
-        Pair(6 to 1, 11 to 5) to 9,
+        Pair(6L to 1L, 6L to 2L) to 1L,
+        Pair(6L to 1L, 6L to 3L) to 2L,
+        Pair(6L to 1L, 7L to 1L) to 1L,
+        Pair(6L to 1L, 7L to 2L) to 2L,
+        Pair(6L to 1L, 7L to 3L) to 3L,
+        Pair(6L to 1L, 11L to 5L) to 9L,
     )
-        .map { (input: Pair<Pair<Int, Int>, Pair<Int, Int>>, expected: Int) ->
+        .map { (input: Pair<Pair<Long, Long>, Pair<Long, Long>>, expected: Long) ->
             DynamicTest.dynamicTest(" $input => $expected") {
                 val p1 = input.first
                 val p2 = input.second

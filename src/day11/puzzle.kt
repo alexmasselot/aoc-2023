@@ -3,35 +3,23 @@ package day11
 import findIndexes
 import println
 import readInput
+import kotlin.math.abs
 
-data class Universe(val grid: List<List<Boolean>>) {
-    fun galaxyPositions()=
-        grid.findIndexes { it }
+data class Universe(val grid: List<List<Boolean>>, val rowPos: List<Int>, val colPos: List<Int>) {
+    fun galaxyPositions() =
+        grid.findIndexes { it }.map { (row, col) -> rowPos[row].toLong() to colPos[col].toLong() }
 
     /**
      * double empty rows and columns
      */
-    fun expand(): Universe {
-        val emptyRowDeltas = listOf(0).plus(grid.mapIndexed { index, booleans -> index to booleans.all { !it } }
-            .filter { it.second }
-            .map { it.first }
-        )
-            .zipWithNext()
+    fun expand(distInc: Int): Universe {
+        val emptyRows = grid.map { booleans -> booleans.all { !it } }
+        val emptyCols = (0..<grid[0].size).map { col -> grid.all { !it[col] } }
 
-        val emptyColDeltas = listOf(0).plus((0..<grid[0].size).filter { col -> grid.all { !it[col] } })
-            .zipWithNext()
+        val rowIndex = shiftEmpty(emptyRows, distInc)
+        val colIndex = shiftEmpty(emptyCols, distInc)
 
-        val withRows = emptyRowDeltas.fold(emptyList<List<Boolean>>()) { acc, delta ->
-            acc.plus(grid.drop(delta.first).take(delta.second-delta.first+1))
-        }.plus(grid.drop(emptyRowDeltas.last().second))
-
-        val withCols= withRows.map{row ->
-            emptyColDeltas.fold(emptyList<Boolean>()) { acc, delta ->
-                acc.plus(row.drop(delta.first).take(delta.second-delta.first+1))
-            }.plus(row.drop(emptyColDeltas.last().second))
-        }
-
-        return Universe(withCols)
+        return Universe(grid, rowIndex, colIndex)
     }
 
     override fun toString(): String =
@@ -41,11 +29,24 @@ data class Universe(val grid: List<List<Boolean>>) {
 
     companion object {
         fun parseInput(input: List<String>): Universe {
-            return Universe(input.map { it.map { it == '#' } })
+            return Universe(
+                input.map { it.map { it == '#' } },
+                input.indices.toList(),
+                (0..<input[0].length).toList()
+            )
         }
 
-        fun distance(p1: Pair<Int, Int>, p2: Pair<Int, Int>): Int {
-             return Math.abs(p1.first - p2.first) + Math.abs(p1.second - p2.second)
+        fun shiftEmpty(cond: List<Boolean>, distInc: Int): List<Int> {
+            return cond.mapIndexed { index, b -> index to b }
+                .fold(0 to emptyList<Int>()) { (offset, acc), (i, isEmpty) ->
+                    if (isEmpty) offset + distInc-1 to acc.plus(i + offset)
+                    else
+                        offset to acc.plus(i + offset)
+                }.second
+        }
+
+        fun distance(p1: Pair<Long, Long>, p2: Pair<Long, Long>): Long {
+            return abs(p1.first - p2.first) + abs(p1.second - p2.second)
         }
     }
 }
@@ -53,8 +54,7 @@ data class Universe(val grid: List<List<Boolean>>) {
 fun main() {
     val day = ::main.javaClass.`package`.name.takeLast(2)
 
-    fun part1(input: List<String>): Int {
-        val universe = Universe.parseInput(input).expand()
+    fun sumDistance(universe: Universe): Long {
         val galaxyPositions = universe.galaxyPositions()
         return galaxyPositions.flatMap { p1 ->
             galaxyPositions.map { p2 ->
@@ -62,29 +62,33 @@ fun main() {
             }
         }
             .filter { it.first != it.second }
-            .map{ (p1, p2) -> Universe.distance(p1, p2)
+            .map { (p1, p2) ->
+                Universe.distance(p1, p2)
             }
-            .sum()/2
-
+            .sum() / 2
 
     }
 
-    fun part2(input: List<String>): Int {
-
-        return 42
+    fun part(input: List<String>, d: Int): Long {
+        val universe = Universe.parseInput(input).expand(d)
+        return sumDistance(universe)
     }
+
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("day$day/input_test")
-    val p1 = part1(testInput)
+    val p1 = part(testInput, 2)
     println(p1)
-    check(part1(testInput) == 374)
+    check(part(testInput, 2) == 374L)
 
-//    val p2 = part2(testInput)
-//    println(p2)
-//    check( p2 == 281)
+    val p21 = part(testInput, 10)
+    println(p21)
+    check(p21 == 1030L)
+    val p22 = part(testInput, 100)
+    println(p22)
+    check(p22 == 8410L)
 
     val input = readInput("day$day/input")
-    part1(input).println()
-    part2(input).println()
+    part(input, 2).println()
+    part(input, 1000000).println()
 }
