@@ -21,19 +21,12 @@ data class Pattern(val map: List<Int>, val nbCols: Int, val trs: Pattern? = null
         (0..nbCols).filter { isColMirrored(it, nbSmudges) }
 
     fun isRowMirrored(row: Int, nbSmudges: Int = 0): Boolean {
-        println("---------- $row")
         if (row == 0 || row >= nbRows) {
             return false
         }
         val iMax = min(row, nbRows - row)
-        if ((1..iMax).any {
-            println("$it\t${binaryAdd(map[row - it], map[row + it - 1], nbSmudges)}")
-                binaryAdd(map[row - it], map[row + it - 1], nbSmudges) == null
-            }) {
-            return false
-        }
         return (1..iMax).sumOf {
-            binaryAdd(map[row - it], map[row + it - 1], nbSmudges)!!
+            binaryDistance(map[row - it], map[row + it - 1])
         } == nbSmudges
     }
 
@@ -80,6 +73,11 @@ data class Pattern(val map: List<Int>, val nbCols: Int, val trs: Pattern? = null
             }
             return 1
         }
+
+        fun binaryDistance(first: Int, second: Int): Int {
+            val x = first xor second
+            return Integer.bitCount(x)
+        }
     }
 }
 
@@ -98,8 +96,7 @@ fun main() {
 
     fun part2(input: List<String>): Int {
         return patterns(input).sumOf {
-            println(it.findAllMirrorRows(1))
-            it.findAllMirrorRows(1).sum() * 100
+            it.findAllMirrorRows(1).sum() * 100 + it.findAllMirrorCols(1).sum()
         }
     }
 
