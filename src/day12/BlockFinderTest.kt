@@ -28,19 +28,19 @@ class BlockFinderTest {
         DynamicTest.dynamicTest(" $input => $expected") {
             val str = input.first
             val len = input.second
-            val got = BlockFinder.findBlock(str, len)
+            val got = BlockFinder.findLeadingBlock(str, len)
             assertEquals(expected, got)
         }
     }
 
     @Test
     fun testFindBlockOffset() {
-        val got = BlockFinder.findBlock("..?#?..", 2, 3)
+        val got = BlockFinder.findLeadingBlock("..?#?..", 2, 3)
         assertEquals(3, got)
     }
 
     @TestFactory
-    fun testFindAllBlocks() = listOf(
+    fun testFindAllLeadBlocks() = listOf(
         ("..###.." to 3) to listOf(2),
         ("..###.." to 2) to emptyList(),
         ("..###.." to 4) to emptyList(),
@@ -65,38 +65,38 @@ class BlockFinderTest {
             val str = input.first
             val len = input.second
 
-            val got = BlockFinder.findAllBlocks(str, len)
+            val got = BlockFinder.findAllLeadBlocks(str, len)
             assertEquals(expected, got.toList())
         }
     }
 
     @TestFactory
     fun testCountBlocks() = listOf(
-        (".#.#?." to listOf(1, 1)) to 1,
-        ("..###.." to listOf(3)) to 1,
-        ("..###.." to listOf(2)) to 0,
-        ("..###.." to listOf(4)) to 0,
-        ("..??#.." to listOf(3)) to 1,
-        ("..??#.." to listOf(2)) to 1,
-        ("..?#?.." to listOf(2)) to 2,
-        ("..??????.." to listOf(2)) to 5,
-        ("..??.??." to listOf(2)) to 2,
-        ("..??#??." to listOf(2)) to 2,
-        ("..??#???." to listOf(2)) to 2,
-        (".##.?#??.#.?#" to listOf(2, 1, 1, 1)) to 1,
+        (".#.#?." to listOf(1, 1)) to 1L,
+        ("..###.." to listOf(3)) to 1L,
+        ("..###.." to listOf(2)) to 0L,
+        ("..###.." to listOf(4)) to 0L,
+        ("..??#.." to listOf(3)) to 1L,
+        ("..??#.." to listOf(2)) to 1L,
+        ("..?#?.." to listOf(2)) to 2L,
+        ("..??????.." to listOf(2)) to 5L,
+        ("..??.??." to listOf(2)) to 2L,
+        ("..??#??." to listOf(2)) to 2L,
+        ("..??#???." to listOf(2)) to 2L,
+        (".##.?#??.#.?#" to listOf(2, 1, 1, 1)) to 1L,
         /*
         * .######....#.
         * ..######...#.
         * ...######..#.
         * ....######.#.
          */
-        (".???#??????#." to listOf(6, 1) to 4),
+        (".???#??????#." to listOf(6, 1) to 4L),
         /*
          * ???##???##?#??#?#..# [1, 14, 1]
          * #..##############..#
          * .#.##############..#
          */
-        ("???##???##?#??#?#..#" to listOf(1, 14, 1) to 2),
+        ("???##???##?#??#?#..#" to listOf(1, 14, 1) to 2L),
         /*
         * ?##?.??.???.. [3, 2, 2] => 4
         * ###..##.##...
@@ -104,7 +104,7 @@ class BlockFinderTest {
         * .###.##.##...
         * .###.##..##..
          */
-        ("?##?.??.???.." to listOf(3, 2, 2) to 4),
+        ("?##?.??.???.." to listOf(3, 2, 2) to 4L),
         /*
          * ???.?????##?#??????? [3,8,1 ]"
          * ###..########.#.....
@@ -136,7 +136,7 @@ class BlockFinderTest {
          * .....###.########.#.
          * .....###.########..#
          */
-        ("???.?????##?#???????" to listOf(3, 8, 1) to 27),
+        ("???.?????##?#???????" to listOf(3, 8, 1) to 27L),
         (".??..??...?##.?.??..??...?##.?.??..??...?##.?.??..??...?##.?.??..??...?##." to listOf(
             1,
             1,
@@ -153,8 +153,8 @@ class BlockFinderTest {
             1,
             1,
             3
-        )) to 16384
-    ).map { (input: Pair<String, List<Int>>, expected: Int) ->
+        )) to 16384L
+    ).map { (input: Pair<String, List<Int>>, expected: Long) ->
         DynamicTest.dynamicTest(" $input => $expected") {
             val str = input.first
             val lens = input.second
@@ -164,25 +164,15 @@ class BlockFinderTest {
         }
     }
 
-    @Test
-    fun testCountBlocks1() {
-        val input = ".##.?#??.#.?#" to listOf(2, 1, 1, 1)
-        val expected = 1
-
-        val got = BlockFinder.countBlocks(input.first, input.second)
-        assertEquals(expected, got)
-
-    }
-
     @TestFactory
     fun testParseCount() = listOf(
-        ("???.### 1,1,3") to 1,
-        (".??..??...?##. 1,1,3") to 4,
-        ("?#?#?#?#?#?#?#? 1,3,1,6") to 1,
-        ("????.#...#... 4,1,1") to 1,
-        ("????.######..#####. 1,6,5") to 4,
-        ("?###???????? 3,2,1") to 10,
-    ).map { (input: String, expected: Int) ->
+        ("???.### 1,1,3") to 1L,
+        (".??..??...?##. 1,1,3") to 4L,
+        ("?#?#?#?#?#?#?#? 1,3,1,6") to 1L,
+        ("????.#...#... 4,1,1") to 1L,
+        ("????.######..#####. 1,6,5") to 4L,
+        ("?###???????? 3,2,1") to 10L,
+    ).map { (input: String, expected: Long) ->
         DynamicTest.dynamicTest(" $input => $expected") {
             val (str, lens) = BlockFinder.parseLine(input, 1)
 
