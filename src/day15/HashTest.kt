@@ -25,6 +25,11 @@ class HashTest {
         "rn=1" to 30,
         "cm-" to 253,
         "qp=3" to 97,
+        "rn" to 0,
+        "cm" to 0,
+        "cm" to 0,
+        "qp" to 1,
+        "pc" to 3
     ).map { (input: String, expected: Int) ->
         DynamicTest.dynamicTest(" $input => $expected") {
             val got = Hash.hash(input)
