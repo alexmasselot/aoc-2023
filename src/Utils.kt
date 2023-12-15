@@ -41,11 +41,12 @@ fun <T> List<List<T>>.set(row: Int, col: Int, value: T): List<List<T>> {
         .plus(drop(row + 1))
 
 }
-fun <T>List<List<T>>.countIf(f: (T) -> Boolean): Int =
+
+fun <T> List<List<T>>.countIf(f: (T) -> Boolean): Int =
     this.map { it.count(f) }.sum()
 
-fun <T>List<List<T>>.findIndexes(f: (T) -> Boolean):List<Pair<Int, Int>> =
-    this.mapIndexed { i, row -> row.mapIndexed { j, t -> if(f(t)) Pair(i,j) else null } }
+fun <T> List<List<T>>.findIndexes(f: (T) -> Boolean): List<Pair<Int, Int>> =
+    this.mapIndexed { i, row -> row.mapIndexed { j, t -> if (f(t)) Pair(i, j) else null } }
         .flatten()
         .filterNotNull()
 
@@ -93,6 +94,9 @@ fun List<List<Boolean>>.or(other: List<List<Boolean>>): List<List<Boolean>> =
 fun List<List<Boolean>>.and(other: List<List<Boolean>>): List<List<Boolean>> =
     this.zipApply(other) { a, b -> a && b }
 
+/**
+ * if other is true, keep element, else put default value
+ */
 fun <T> List<List<T>>.mask(other: List<List<Boolean>>, default: T): List<List<T>> =
     this.zip(other).map { (ra, rb) ->
         ra.zip(rb).map { (a, b) ->
@@ -104,4 +108,11 @@ fun <T> List<List<T>>.mask(other: List<List<Boolean>>, default: T): List<List<T>
         }
     }
 
+fun <T> List<List<T>>.rotateClockwise(): List<List<T>> =
+    this[0].indices.map { i ->
+        this.indices.reversed().map { j ->
+            this[j][i]
+        }
+    }
+    
 

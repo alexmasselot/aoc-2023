@@ -1,7 +1,6 @@
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
-
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 
 class UtilsKtTest {
     @Test
@@ -177,5 +176,24 @@ class UtilsKtTest {
             assertEquals(exp, got)
         }
     }
+
+    @Test
+    fun testRotateClockwise(){
+        val given = listOf(
+            listOf(0,1,2),
+            listOf(3,4,5),
+            listOf(6,7,8),
+        )
+
+        val expected = listOf(
+            listOf(6,3,0),
+            listOf(7,4,1),
+            listOf(8,5,2)
+        )
+
+        val got = given.rotateClockwise()
+        assertEquals(expected,got)
+    }
+
 
 }
