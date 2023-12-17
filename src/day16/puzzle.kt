@@ -3,6 +3,7 @@ package day16
 import CellularAutomata
 import countIf
 import mapMatrix
+import nbCols
 import println
 import readInput
 import toStringMat
@@ -16,8 +17,50 @@ data class BeamCA(val ca: CellularAutomata) {
             BeamCA(
                 CellularAutomata(
                     ca.grid.take(p)
-                        .plusElement(listOf(ca.grid.get(p).first() or CellularAutomata.maskE).plus(ca.grid.get(p).drop(1)))
+                        .plusElement(
+                            listOf(ca.grid.get(p).first() or CellularAutomata.maskE).plus(
+                                ca.grid.get(p).drop(1)
+                            )
+                        )
                         .plus(ca.grid.drop(p + 1)),
+                    ca.rules
+                )
+            )
+
+        dir == "right" ->
+            BeamCA(
+                CellularAutomata(
+                    ca.grid.take(p)
+                        .plusElement(
+                            ca.grid.get(p).dropLast(1).plusElement(ca.grid.get(p).last() or CellularAutomata.maskW)
+                        )
+                        .plus(ca.grid.drop(p + 1)),
+                    ca.rules
+                )
+            )
+
+        dir == "top" ->
+            BeamCA(
+                CellularAutomata(
+                    listOf(
+                        ca.grid.first().take(p)
+                            .plusElement(ca.grid.first().get(p) or CellularAutomata.maskS)
+                            .plus(ca.grid.first().drop(p + 1))
+                    )
+                        .plus(ca.grid.drop(1)),
+                    ca.rules
+                )
+            )
+
+        dir == "bottom" ->
+            BeamCA(
+                CellularAutomata(
+                    ca.grid.dropLast(1)
+                        .plusElement(
+                            ca.grid.last().take(p)
+                                .plusElement(ca.grid.last().get(p) or CellularAutomata.maskN)
+                                .plus(ca.grid.last().drop(p + 1))
+                        ),
                     ca.rules
                 )
             )
@@ -94,10 +137,7 @@ data class BeamCA(val ca: CellularAutomata) {
 fun main() {
     val day = ::main.javaClass.`package`.name.takeLast(2)
 
-    fun part1(input: List<String>): Int {
-        val beamCA = BeamCA.parse(input).startsWith("left", 0)
-        println(beamCA)
-
+    fun countEnergized(beamCA: BeamCA): Int {
         tailrec fun handler(accBeam: List<List<Int>>, bca: BeamCA): List<List<Boolean>> {
             val next = bca.next()
             val nextBeam =
@@ -111,9 +151,26 @@ fun main() {
 
     }
 
-    fun part2(input: List<String>): Int {
+    fun part1(input: List<String>): Int {
+        val beamCA = BeamCA.parse(input).startsWith("left", 0)
 
-        return 42
+        return countEnergized(beamCA)
+    }
+
+    fun part2(input: List<String>): Int {
+        val beamCA = BeamCA.parse(input)
+        println(countEnergized(BeamCA.parse(input).startsWith("left", 0)))
+        println(countEnergized(BeamCA.parse(input).startsWith("top", 3)))
+        assert(beamCA.ca.grid.nbCols() == beamCA.ca.grid.nbCols())
+        val n = beamCA.ca.grid.nbCols()
+        return listOf("top", "bottom", "left", "right").maxOf { dir ->
+            (0..<n).maxOf { p ->
+                val beamCA = BeamCA.parse(input).startsWith(dir, p)
+                val cp = countEnergized(beamCA)
+                println("$dir $p => $cp")
+                cp
+            }
+        }
     }
 
     // test if implementation meets criteria from the description, like:
@@ -121,9 +178,9 @@ fun main() {
     val p1 = part1(testInput)
     check(part1(testInput) == 46)
 
-//    val p2 = part2(testInput)
-//    println(p2)
-//    check( p2 == 281)
+    val p2 = part2(testInput)
+    println(p2)
+   check( p2 == 51)
 
     val input = readInput("day$day/input")
     part1(input).println()
