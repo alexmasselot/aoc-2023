@@ -90,6 +90,8 @@ fun List<List<Boolean>>.not(): List<List<Boolean>> =
 
 fun List<List<Boolean>>.or(other: List<List<Boolean>>): List<List<Boolean>> =
     this.zipApply(other) { a, b -> a || b }
+fun List<List<Int>>.bitOr(other: List<List<Int>>): List<List<Int>> =
+    this.zipApply(other) { a, b -> a or b }
 
 fun List<List<Boolean>>.and(other: List<List<Boolean>>): List<List<Boolean>> =
     this.zipApply(other) { a, b -> a && b }

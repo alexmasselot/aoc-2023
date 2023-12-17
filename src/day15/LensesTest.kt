@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
 
 class LensesTest {
-    val steps = listOf(
+    private val steps = listOf(
         Lenses.empty(),
         Lenses.fill(
             listOf(
