@@ -23,27 +23,40 @@ class LavaMapInstructionTest {
     """.trimIndent()
 
     @Test
-    fun testParse() {
+    fun testParse1() {
         val given = "R 6 (#70c710)"
 
-        val got = LavaMapInstruction.parse(given)
+        val got = LavaMapInstruction.parse(given, part = 1)
 
-        assertEquals(0 to 1, got.direction)
+        assertEquals(0 to 1, got.heading.dir)
+        assertEquals(Heading.R, got.heading)
         assertEquals(6, got.step)
-        assertEquals(0x70c710, got.color)
+    }
+
+    @Test
+    fun testParse2() {
+        val given = "R 6 (#70c710)"
+
+        val got = LavaMapInstruction.parse(given, part = 2)
+
+        assertEquals(0 to 1, got.heading.dir)
+        assertEquals(Heading.R, got.heading)
+        assertEquals(461937, got.step)
+
     }
 
     @Test
     fun testFindBoundariesMax() {
-        val map = LavaMapInstructionList.parse(input.lines())
+        val map = LavaMap.parse(input.lines())
 
         val got = map.findBoundariesMax()
 
         assertEquals(9 to 6, got)
     }
+
     @Test
     fun testFindBoundariesMin() {
-        val map = LavaMapInstructionList.parse(input.lines())
+        val map = LavaMap.parse(input.lines())
 
         val got = map.findBoundariesMin()
 
@@ -51,12 +64,12 @@ class LavaMapInstructionTest {
     }
 
     @Test
-    fun testPerimeterMap(){
-        val given = LavaMapInstructionList.parse(input.lines())
+    fun testPerimeterMap() {
+        val given = LavaMap.parse(input.lines())
 
         val got = given.perimeterMap()
 
-        val expected ="""
+        val expected = """
             #######
             #.....#
             ###...#
@@ -73,8 +86,8 @@ class LavaMapInstructionTest {
     }
 
     @Test
-    fun testIsTurningRight(){
-        val given = LavaMapInstructionList.parse(input.lines())
+    fun testIsTurningRight() {
+        val given = LavaMap.parse(input.lines())
 
         val got = given.isTurningRight()
 
@@ -82,8 +95,8 @@ class LavaMapInstructionTest {
     }
 
     @Test
-    fun testPerimeter(){
-        val given = LavaMapInstructionList.parse(input.lines())
+    fun testPerimeter() {
+        val given = LavaMap.parse(input.lines())
 
         val got = given.perimeter()
 
@@ -94,8 +107,8 @@ class LavaMapInstructionTest {
     }
 
     @Test
-    fun findInnerPosition(){
-        val given = LavaMapInstructionList.parse(input.lines())
+    fun findInnerPosition() {
+        val given = LavaMap.parse(input.lines())
 
         val got = given.findInnerPosition()
 
@@ -103,12 +116,12 @@ class LavaMapInstructionTest {
     }
 
     @Test
-    fun testInnerArea(){
-        val given = LavaMapInstructionList.parse(input.lines())
+    fun testInnerArea() {
+        val given = LavaMap.parse(input.lines())
 
         val got = given.innerArea()
 
-        val expected ="""
+        val expected = """
             #######
             #######
             #######
@@ -122,5 +135,111 @@ class LavaMapInstructionTest {
         """.trimIndent()
 
         assertEquals(expected, got.toString('#'))
+    }
+
+    @Test
+    fun testReduceOne1() {
+        val given = LavaMap.parse(input.lines())
+        val got = given.reduceOne()
+
+        val expected = """
+            #####..
+            #...#..
+            ###.#..
+            ..#.#..
+            ..#.#..
+            ###.#..
+            #...#..
+            ##..###
+            .#....#
+            .######
+        """.trimIndent()
+
+        assertEquals(expected, got?.first?.perimeterMap()?.toString('#'))
+        assertEquals(12L, got?.second)
+    }
+
+    @Test
+    fun testCollapseContinuousSteps() {
+        val given = LavaMap(
+            listOf(
+                LavaMapInstruction(Heading.L, 1),
+                LavaMapInstruction(Heading.D, 2),
+                LavaMapInstruction(Heading.R, 3),
+                LavaMapInstruction(Heading.R, 4),
+                LavaMapInstruction(Heading.U, 5),
+            )
+        )
+
+        val got = given.cleanUpSteps()
+        val expected = LavaMap(
+            listOf(
+                LavaMapInstruction(Heading.L, 1),
+                LavaMapInstruction(Heading.D, 2),
+                LavaMapInstruction(Heading.R, 7),
+                LavaMapInstruction(Heading.U, 5),
+            )
+        )
+
+        assertEquals(expected, got)
+    }
+
+    @Test
+    fun testRotate(){
+        val given = LavaMap(
+            listOf(
+                LavaMapInstruction(Heading.L, 1),
+                LavaMapInstruction(Heading.D, 2),
+                LavaMapInstruction(Heading.R, 7),
+                LavaMapInstruction(Heading.U, 5),
+            )
+        )
+
+        val got = given.rotate()
+
+        val expected =
+            LavaMap(
+                listOf(
+                    LavaMapInstruction(Heading.U, 1),
+                    LavaMapInstruction(Heading.L, 2),
+                    LavaMapInstruction(Heading.D, 7),
+                    LavaMapInstruction(Heading.R, 5),
+                )
+            )
+
+        assertEquals(expected, got)
+    }
+
+
+    @Test
+    fun testMirror() {
+        val given = LavaMap.parse(input.lines())
+
+        val got = given.mirror()
+
+        val expected = """
+            #######
+            #.....#
+            #...###
+            #...#..
+            #...#..
+            ###.###
+            ..#...#
+            ###..##
+            #....#.
+            ######.
+        """.trimIndent()
+
+        assertEquals(expected, got.perimeterMap().toString('#'))
+    }
+
+
+    @Test
+    fun testGrittyArea(){
+        val given = LavaMap.parse(input.lines(), part=1)
+
+        val got = given.grittyArea()
+
+        assertEquals(62L, got)
     }
 }
