@@ -47,11 +47,27 @@ class NodeTest {
 
 
     @Test
-    fun testNext(){
+    fun testNext1(){
         val node = Node.parse("qqz{s>2770:qs,m<1801:hdj,R}")
         val part = Part.parse("{x=787,m=2655,a=1222,s=2876}")
 
         val got = node.next(part)
         assertEquals("qs", got)
+    }
+    @Test
+    fun testNext2(){
+        val node = Node.parse("qqz{s>2770:qs,m<1801:hdj,R}")
+        val part = Part.parse("{x=787,m=100,a=1222,s=100}")
+
+        val got = node.next(part)
+        assertEquals("hdj", got)
+    }
+@Test
+    fun testNext3(){
+        val node = Node.parse("qqz{s>2770:qs,m<1801:hdj,R}")
+        val part = Part.parse("{x=787,m=2000,a=1222,s=100}")
+
+        val got = node.next(part)
+        assertEquals("R", got)
     }
 }
