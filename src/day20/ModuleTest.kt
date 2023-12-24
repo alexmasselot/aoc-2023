@@ -60,16 +60,16 @@ class ModuleTest {
         @BeforeEach
         fun setUp() {
             // adding connected from also reset memory to LOW
-            conjunction.connectedFrom("x")
-            conjunction.connectedFrom("y")
-            conjunction.connectedFrom("z")
+            conjunction.connectFrom("x")
+            conjunction.connectFrom("y")
+            conjunction.connectFrom("z")
         }
 
         @Test
         fun `should emit HIGH when all memory are not HIGH`() {
-            conjunction.connectedFrom["x"] = PulseIntensity.LOW
-            conjunction.connectedFrom["y"] = PulseIntensity.LOW
-            conjunction.connectedFrom["z"] = PulseIntensity.HIGH
+            conjunction.connectedFromPulses["x"] = PulseIntensity.LOW
+            conjunction.connectedFromPulses["y"] = PulseIntensity.LOW
+            conjunction.connectedFromPulses["z"] = PulseIntensity.HIGH
 
             val got = conjunction.receiveAndEmit(Pulse("X", "test", PulseIntensity.HIGH))
 
@@ -81,9 +81,9 @@ class ModuleTest {
 
         @Test
         fun `should emit LOW when all memory are  HIGH and receives HIGH`() {
-            conjunction.connectedFrom["x"] = PulseIntensity.HIGH
-            conjunction.connectedFrom["y"] = PulseIntensity.HIGH
-            conjunction.connectedFrom["z"] = PulseIntensity.HIGH
+            conjunction.connectedFromPulses["x"] = PulseIntensity.HIGH
+            conjunction.connectedFromPulses["y"] = PulseIntensity.HIGH
+            conjunction.connectedFromPulses["z"] = PulseIntensity.HIGH
 
             val got = conjunction.receiveAndEmit(Pulse("X", "test", PulseIntensity.HIGH))
 
@@ -94,9 +94,9 @@ class ModuleTest {
 
         @Test
         fun `should emit LOW when all memory are HIGH but the source and receives HIGH`() {
-            conjunction.connectedFrom["x"] = PulseIntensity.LOW
-            conjunction.connectedFrom["y"] = PulseIntensity.HIGH
-            conjunction.connectedFrom["z"] = PulseIntensity.HIGH
+            conjunction.connectedFromPulses["x"] = PulseIntensity.LOW
+            conjunction.connectedFromPulses["y"] = PulseIntensity.HIGH
+            conjunction.connectedFromPulses["z"] = PulseIntensity.HIGH
 
             val got = conjunction.receiveAndEmit(Pulse("X", "test", PulseIntensity.HIGH))
 

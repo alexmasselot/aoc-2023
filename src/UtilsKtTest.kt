@@ -195,5 +195,19 @@ class UtilsKtTest {
         assertEquals(expected,got)
     }
 
+    @Test
+    fun testFindLCM1() {
+        val given = listOf(3L, 5L, 7L)
+        val got = findLCM(given)
 
+        assertEquals(3 * 5 * 7, got)
+    }
+
+    @Test
+    fun testFindLCM2() {
+        val given = listOf(3L * 5, 5L * 3, 7L * 5 * 7)
+        val got = findLCM(given)
+
+        assertEquals(3 * 5 * 7 * 7, got)
+    }
 }

@@ -2,6 +2,7 @@ import java.math.BigInteger
 import java.security.MessageDigest
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
+import kotlin.math.abs
 
 /**
  * Reads lines from the given input txt file.
@@ -116,5 +117,17 @@ fun <T> List<List<T>>.rotateClockwise(): List<List<T>> =
             this[j][i]
         }
     }
-    
 
+fun findLCM(numbers: List<Long>): Long {
+    require(numbers.isNotEmpty()) { "List must not be empty" }
+
+    fun gcd(a: Long, b: Long): Long {
+        return if (b == 0L) abs(a) else gcd(b, a % b)
+    }
+
+    fun lcm(a: Long, b: Long): Long {
+        return if (a == 0L || b == 0L) 0 else abs(a * b) / gcd(a, b)
+    }
+
+    return numbers.reduce { acc, num -> lcm(acc, num) }
+}

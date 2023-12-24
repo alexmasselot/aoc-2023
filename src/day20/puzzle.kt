@@ -1,5 +1,6 @@
 package day20
 
+import findLCM
 import println
 import readInput
 
@@ -13,45 +14,66 @@ data class Pulse(val from: String, val to: String, val intensity: PulseIntensity
 
 abstract class Module {
     abstract val name: String
+    abstract val symbol: String
 
     val connectedTo = mutableListOf<String>()
+    val connectedFrom = mutableListOf<String>()
+
+    private val nbPulses = mutableMapOf(PulseIntensity.HIGH to 0L, PulseIntensity.LOW to 0L)
     abstract fun receiveAndEmit(pulse: Pulse): List<Pulse>
 
-    abstract fun connectedFrom(from: String)
+    abstract fun connectFrom(from: String)
 
     fun connectedTo(to: String) {
         connectedTo.add(to)
     }
 
-    companion object {
-
+    fun pushPulse(pulse: Pulse) {
+        nbPulses[pulse.intensity] = nbPulses[pulse.intensity]!! + 1
     }
+
+    fun countPushedPulse(pi: PulseIntensity) = nbPulses[pi]!!
+
+    fun resetPulseCount() {
+        nbPulses[PulseIntensity.HIGH] = 0
+        nbPulses[PulseIntensity.LOW] = 0
+    }
+
+    override fun toString() = "$symbol$name (<-${connectedFrom.size} ->${connectedTo.size})"
+
 }
 
 class Broadcaster() : Module() {
     override val name: String = "broadcaster"
+    override val symbol = ">"
 
     override fun receiveAndEmit(pulse: Pulse) =
         connectedTo.map { Pulse(name, it, pulse.intensity) }
 
-    override fun connectedFrom(from: String) {
+    override fun connectFrom(from: String) {
     }
+
 }
 
 class Output(override val name: String) : Module() {
+    override val symbol = "/"
 
     override fun receiveAndEmit(pulse: Pulse): List<Pulse> {
+        pushPulse(pulse)
         return emptyList()
     }
 
-    override fun connectedFrom(from: String) {
+    override fun connectFrom(from: String) {
+        connectedFrom.add(from)
     }
 }
 
 class FlipFlop(override val name: String) : Module() {
+    override val symbol = "%"
     var isOff = true
 
     override fun receiveAndEmit(pulse: Pulse): List<Pulse> {
+        pushPulse(pulse)
         if (pulse.intensity == PulseIntensity.HIGH) {
             return emptyList()
         }
@@ -61,17 +83,21 @@ class FlipFlop(override val name: String) : Module() {
         return connectedTo.map { Pulse(name, it, pi) }
     }
 
-    override fun connectedFrom(from: String) {
+    override fun connectFrom(from: String) {
+        connectedFrom.add(from)
     }
 
 }
 
 class Conjunction(override val name: String) : Module() {
-    val connectedFrom = mutableMapOf<String, PulseIntensity>()
+    override val symbol = "&"
+    val connectedFromPulses = mutableMapOf<String, PulseIntensity>()
 
+    fun allHigh() = connectedFromPulses.values.all { it == PulseIntensity.HIGH }
     override fun receiveAndEmit(pulse: Pulse): List<Pulse> {
-        connectedFrom[pulse.from] = pulse.intensity
-        val pi = if (connectedFrom.values.all { it == PulseIntensity.HIGH }) {
+        pushPulse(pulse)
+        connectedFromPulses[pulse.from] = pulse.intensity
+        val pi = if (allHigh()) {
             PulseIntensity.LOW
         } else {
             PulseIntensity.HIGH
@@ -80,9 +106,11 @@ class Conjunction(override val name: String) : Module() {
         return connectedTo.map { Pulse(name, it, pi) }
     }
 
-    override fun connectedFrom(from: String) {
-        connectedFrom[from] = PulseIntensity.LOW
+    override fun connectFrom(from: String) {
+        connectedFrom.add(from)
+        connectedFromPulses[from] = PulseIntensity.LOW
     }
+
 }
 
 class ModuleConfig {
@@ -125,6 +153,34 @@ class ModuleConfig {
         return handler(0L to 0L)
     }
 
+    fun pressAndCountHighIntervals(watched: Conjunction):Map<String, List<IntRange>> {
+        val clockHigh: MutableMap<String, List<IntRange>> =
+            watched.connectedFrom.associateWith { emptyList<IntRange>() }.toMutableMap()
+        val isHigh: MutableMap<String, Int?> = watched.connectedFrom.associateWith { null }.toMutableMap()
+
+        fun handler(t: Int) {
+            val pulse = step() ?: return
+            if (pulse.to == watched.name) {
+                if (pulse.intensity == PulseIntensity.LOW && isHigh[pulse.from]?.let{it != null} == true) {
+                    clockHigh[pulse.from] = clockHigh[pulse.from]!!.plusElement(isHigh[pulse.from]!!..<t)
+                }
+                if(pulse.intensity == PulseIntensity.HIGH) {
+                    isHigh[pulse.from] = t
+                } else {
+                    isHigh[pulse.from] = null
+                }
+            }
+            return handler(t + 1)
+        }
+
+        pressButton()
+         handler(0)
+        return clockHigh.toMap()
+    }
+
+    fun resetPulseCount() {
+        modules.values.forEach { it.resetPulseCount() }
+    }
 
     fun addModule(module: Module) {
         modules[module.name] = module
@@ -132,12 +188,33 @@ class ModuleConfig {
 
     fun connect(from: String, to: String) {
         if (to == "") return
-        if(! modules.containsKey(to)){
+        if (!modules.containsKey(to)) {
             println("adding output $to")
             addModule(Output(to))
         }
         modules[from]!!.connectedTo(to)
-        modules[to]!!.connectedFrom(from)
+        modules[to]!!.connectFrom(from)
+    }
+
+    fun precursors(node: String, depth: Int): List<Module> {
+        fun handler(nodes: List<String>, d: Int): List<String> {
+            if (d == 0) return nodes
+            return handler(nodes.flatMap { modules[it]!!.connectedFrom }, d - 1)
+        }
+
+        return handler(listOf(node), depth).map { modules[it]!! }
+    }
+
+    fun printToGraph(node: String) {
+        fun handler(nodes: List<String>, visited: Set<String>) {
+            if (nodes.isEmpty()) return
+            val n = nodes.first()
+            if (visited.contains(n))
+                return handler(nodes.drop(1), visited)
+            println("${modules[n]} <- ${modules[n]!!.connectedFrom.map { modules[it] }} -> ${modules[n]!!.connectedTo.map { modules[it] }}")
+            handler(nodes.drop(1).plus(modules[n]!!.connectedFrom), visited + n)
+        }
+        handler(listOf(node), emptySet())
     }
 
     fun parse(input: List<String>) {
@@ -173,9 +250,35 @@ fun main() {
         return nbLow * nbHigh
     }
 
-    fun part2(input: List<String>): Int {
+    fun part2(input: List<String>): Long {
+        val mc = ModuleConfig()
+        mc.parse(input)
+        println("--------------------------")
+        println(mc.precursors("rx", 0))
+        println(mc.precursors("rx", 1))
+        println(mc.precursors("rx", 2))
+        println(mc.precursors("rx", 3))
 
-        return 42
+        val anteExit = mc.precursors("rx", 1).first().let { it as Conjunction }
+        println(anteExit)
+
+        val hlFirstLoop = mutableMapOf<String,Int>()
+        (1..50000).forEach { i ->
+            mc.resetPulseCount()
+            val switchHigh = mc.pressAndCountHighIntervals( anteExit)
+            if(switchHigh.values.any{it.isNotEmpty()}) {
+                switchHigh.filter { it.value.isNotEmpty() }.forEach { (k, v) ->
+                    if(hlFirstLoop[k] == null) {
+                        hlFirstLoop[k] = i
+                    }
+                }
+                println("$i\t"+anteExit.connectedFrom.map{n->switchHigh[n]!!.joinToString(",")+ " ".repeat(10-switchHigh[n]!!.joinToString(",").length)}.joinToString(" "))
+                check(switchHigh.values.all{it.size <= 1})
+                check(switchHigh.values.filter{it.size == 1}.all{it.first().contains(55)})
+            }
+        }
+        return findLCM(hlFirstLoop.values.map{it.toLong()})
+
     }
 
     // test if implementation meets criteria from the description, like:

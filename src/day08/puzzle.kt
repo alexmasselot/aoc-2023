@@ -1,5 +1,6 @@
 package day08
 
+import findLCM
 import println
 import readInput
 import kotlin.math.abs
@@ -55,19 +56,7 @@ data class BinaryGraph(val nodes: Map<String, Int>, val lefts: List<Int>, val ri
             return BinaryGraph(nodes, lefts, rights)
         }
 
-        fun findLCM(numbers: List<Long>): Long {
-            require(numbers.isNotEmpty()) { "List must not be empty" }
 
-            fun gcd(a: Long, b: Long): Long {
-                return if (b == 0L) abs(a) else gcd(b, a % b)
-            }
-
-            fun lcm(a: Long, b: Long): Long {
-                return if (a == 0L || b == 0L) 0 else abs(a * b) / gcd(a, b)
-            }
-
-            return numbers.reduce { acc, num -> lcm(acc, num) }
-        }
 
     }
 }
@@ -107,7 +96,7 @@ fun main() {
             check(m == n)
             n.toLong()
         }
-        return BinaryGraph.findLCM(ns)
+        return findLCM(ns)
     }
 
     // test if implementation meets criteria from the description, like:
