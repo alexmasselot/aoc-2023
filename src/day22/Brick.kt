@@ -91,12 +91,12 @@ data class BrickMap(val bricks: List<Brick>) {
         return cm
     }
 
-    fun countMonoSupports(): Int {
+    fun indexesMonoSupports(): List<Int> {
         val dropper = BricksDropper(isCatchingMatrix())
         val sm = dropper.dropThemAll(this).isSupportingMatrix()
         val bAcc = BitSet(sm.size)
         sm.cols.filter { it.cardinality() == 1 }.forEach { bAcc.or(it) }
-        return bAcc.cardinality()
+        return BitMatrix.bits(bAcc)
     }
 
     override fun toString() = bricks.joinToString("\n") { it.toString() }

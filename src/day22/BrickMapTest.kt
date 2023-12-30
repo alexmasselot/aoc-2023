@@ -60,15 +60,15 @@ class BrickMapTest{
     @Test
     fun `countMonoSupports`(){
         val given = inputBricks()
-        val got = given.countMonoSupports()
-        assertEquals(2, got)
+        val got = given.indexesMonoSupports()
+        assertEquals(listOf(0,5), got)
     }
 
     @Test
     fun `countMonoSupports suffled`(){
         val given = BrickMap(inputBricks().bricks.reversed())
-        val got = given.countMonoSupports()
-        assertEquals(2, got)
+        val got = given.indexesMonoSupports()
+        assertEquals(listOf(1,6), got)
     }
 
 }
