@@ -20,7 +20,7 @@ class BrickMapTest{
     @Test
     fun isBelowMatrix(){
         val given = inputBricks()
-        val got = given.isBellowtMatrix()
+        val got = given.isBellowMatrix()
         assertEquals(7, got.size)
         assertEquals(BitSet.valueOf(longArrayOf(0b1100110)), got.row(0))
         assertEquals(BitSet.valueOf(longArrayOf(0b0011000)), got.row(1))
@@ -33,8 +33,9 @@ class BrickMapTest{
 
     @Test
     fun `multiply once bitMatrix`(){
-        val given = inputBricks().isBellowtMatrix()
+        val given = inputBricks().isBellowMatrix()
         val got = given.multiply(given)
+
         assertEquals(BitSet.valueOf(longArrayOf(0b1011000)), got.row(0))
         assertEquals(BitSet.valueOf(longArrayOf(0b0100000)), got.row(1))
         assertEquals(BitSet.valueOf(longArrayOf(0b0100000)), got.row(2))
@@ -44,9 +45,9 @@ class BrickMapTest{
         assertEquals(BitSet.valueOf(longArrayOf(0b0000000)), got.row(6))
     }
     @Test
-    fun `supportMatrix`(){
+    fun `isCatchingMatrix`(){
         val given = inputBricks()
-        val got = given.supportMatrix()
+        val got = given.isCatchingMatrix()
         assertEquals(BitSet.valueOf(longArrayOf(0b0000110)), got.row(0))
         assertEquals(BitSet.valueOf(longArrayOf(0b0011000)), got.row(1))
         assertEquals(BitSet.valueOf(longArrayOf(0b0011000)), got.row(2))
