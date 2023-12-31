@@ -48,12 +48,12 @@ class GraphMapTest {
     @Test
     fun findLongest(){
         val graphMap = GraphMap.build(tileMap)
-        assertEquals(94, graphMap.findLongest())
+        assertEquals(94, graphMap.findLongestBrutal())
     }
 
     @Test
     fun `find Longuest removing slippery`(){
         val graphMap = GraphMap.build(tileMapNoSlippery)
-        assertEquals(154, graphMap.findLongest())
+        assertEquals(154, graphMap.findLongestBrutal())
     }
 }

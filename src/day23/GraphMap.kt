@@ -12,28 +12,62 @@ data class GraphMap(val tiles: List<Int>) {
     val endPos = tiles.size - 2
 
 
-    fun findLongest(): Int {
-        tailrec fun handler(pos: Int, dist: Int, visited: Set<Int>, distAcc: List<Int>): List<Int> {
+    fun findLongestBrutal(): Int {
+        tailrec fun handler(comingFrom: Move, pos: Int, dist: Int, visited: Set<Int>, distAcc: List<Int>): List<Int> {
             if (pos == endPos) return distAcc.plusElement(dist)
 
-            val next = next(pos).filter { it !in visited }
+            val next = next(comingFrom, pos).filter { it.second !in visited }
             if (next.isEmpty())
                 return distAcc
 
-            return next.flatMap { handler(it, dist + 1, visited + pos, distAcc) }
+            return next.flatMap { handler(it.first, it.second, dist + 1, visited + pos, distAcc) }
         }
-        val distances = handler(startPos, 0, setOf(), listOf())
-        println(distances)
+
+        val distances = handler(Move.S, startPos, 0, setOf(), listOf())
         return distances.max()
     }
 
-    fun next(i: Int): List<Int> {
+    fun findBifurcations(): List<Int> {
+        return tiles.mapIndexed { i, j -> i to j }.filter { it.second.countOneBits() > 2 }.map { it.first }
+    }
+
+    fun bifurcationsGraph(): DistGraph {
+        val nodeGraph = DistGraph.create(listOf(startPos).plus(findBifurcations()).plus(endPos))
+
+        fun pathToNextBifurcations(iNode: Int): List<Pair<Int, Int>> {
+            val startDirections = next(null, iNode)
+
+            tailrec fun nextBifurcation(comingFrom: Move, pos: Int, dAcc: Int): Pair<Int, Int>? {
+                if (tiles[pos].countOneBits() > 2 || pos == startPos || pos == endPos) {
+                    return pos to dAcc
+                }
+                val nexts = next(comingFrom, pos)
+                if(nexts.isEmpty())
+                    return null
+                assert(nexts.size == 1)
+                return nextBifurcation(nexts[0].first, nexts[0].second, dAcc + 1)
+            }
+            return startDirections.map { (move, pos) ->
+                nextBifurcation(move, pos, 1)
+            }.filterNotNull()
+        }
+
+       return nodeGraph.nodes.fold(nodeGraph) { acc, node ->
+            val edges = pathToNextBifurcations(node)
+            edges.fold(acc) { acc2, (to, dist) ->
+                acc2.addEdge(node, to, dist)
+            }
+        }
+
+    }
+
+    fun next(comingFrom: Move?, i: Int): List<Pair<Move, Int>> {
         val x = tiles[i]
         return listOfNotNull(
-            if (x and Move.N.mask != 0) i - size else null,
-            if (x and Move.W.mask != 0) i - 1 else null,
-            if (x and Move.S.mask != 0) i + size else null,
-            if (x and Move.E.mask != 0) i + 1 else null
+            if (x and Move.N.mask != 0 && comingFrom != Move.N) Move.S to (i - size) else null,
+            if (x and Move.W.mask != 0 && comingFrom != Move.W) Move.E to (i - 1) else null,
+            if (x and Move.S.mask != 0 && comingFrom != Move.S) Move.N to (i + size) else null,
+            if (x and Move.E.mask != 0 && comingFrom != Move.E) Move.W to (i + 1) else null
         )
     }
 
