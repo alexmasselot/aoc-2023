@@ -142,3 +142,18 @@ fun findLCM(numbers: List<Long>): Long {
 
     return numbers.reduce { acc, num -> lcm(acc, num) }
 }
+
+fun toPrimeFactors(n:Long): List<Long>{
+    var nn = n
+    val factors = mutableListOf<Long>()
+    var i = 2L
+    while (i <= nn) {
+        if (nn % i == 0L) {
+            factors.add(i)
+            nn /= i
+        } else {
+            i++
+        }
+    }
+    return factors
+}

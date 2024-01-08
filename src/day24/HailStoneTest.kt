@@ -12,7 +12,7 @@ class HailStoneTest {
     }
 
     @Test
-    fun trajectoryIntersect2D(){
+    fun trajectoryIntersect2D() {
         val h1 = HailStone.parse("19, 13, 30 @ -2, 1, -2")
         val h2 = HailStone.parse("18, 19, 22 @ -1, -1, -2")
         val got = h1.trajectoryIntersect2DInFuture(h2)
@@ -25,7 +25,7 @@ class HailStoneTest {
 
 
     @Test
-    fun `trajectoryIntersect2D does not intersect`(){
+    fun `trajectoryIntersect2D does not intersect`() {
         val h1 = HailStone.parse("19, 13, 30 @ -2, -1, -2")
         val h2 = HailStone.parse("18, 19, 22 @ 4, 2, -2")
         val got = h1.trajectoryIntersect2DInFuture(h2)
@@ -33,11 +33,22 @@ class HailStoneTest {
     }
 
     @Test
-    fun `trajectoryIntersect2D intersect in past`(){
+    fun `trajectoryIntersect2D intersect in past`() {
         val h1 = HailStone.parse("20, 25, 34 @ -2, -2, -4")
         val h2 = HailStone.parse("120, 19, 15 @ 1, -5, -3")
         val got = h1.trajectoryIntersect2DInFuture(h2)
         assertNull(got)
+    }
+
+    @Test
+    fun trajectoryIntersect3D() {
+        val h1 = HailStone.parse("19, 13, 30 @ -2, 1, -2")
+        val h2 = HailStone.parse("24, 13, 10 @ -3, 1, 2")
+        val got = h1.trajectoryIntersect3D(h2)
+        assertNotNull(got)
+        assertEquals(9.0, got?.first?.first)
+        assertEquals(18.0, got?.first?.second)
+        assertEquals(20.0, got?.first?.third)
     }
 
 }

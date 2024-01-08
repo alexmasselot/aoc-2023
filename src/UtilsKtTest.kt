@@ -39,7 +39,7 @@ class UtilsKtTest {
 
         @Test
         fun testSet() {
-            val got = stringMat(matrix).set(2,1, 'Z')
+            val got = stringMat(matrix).set(2, 1, 'Z')
 
             val exp = stringMat(
                 """
@@ -57,12 +57,12 @@ class UtilsKtTest {
             val got = stringMat(matrix).findIndexes { it == 'X' }
 
             val expected = listOf(
-                Pair(0,0),
-                Pair(0,3),
-                Pair(1,1),
-                Pair(1,4),
-                Pair(2,3),
-                Pair(2,4),
+                Pair(0, 0),
+                Pair(0, 3),
+                Pair(1, 1),
+                Pair(1, 4),
+                Pair(2, 3),
+                Pair(2, 4),
             )
             assertEquals(expected, got)
         }
@@ -178,21 +178,21 @@ class UtilsKtTest {
     }
 
     @Test
-    fun testRotateClockwise(){
+    fun testRotateClockwise() {
         val given = listOf(
-            listOf(0,1,2),
-            listOf(3,4,5),
-            listOf(6,7,8),
+            listOf(0, 1, 2),
+            listOf(3, 4, 5),
+            listOf(6, 7, 8),
         )
 
         val expected = listOf(
-            listOf(6,3,0),
-            listOf(7,4,1),
-            listOf(8,5,2)
+            listOf(6, 3, 0),
+            listOf(7, 4, 1),
+            listOf(8, 5, 2)
         )
 
         val got = given.rotateClockwise()
-        assertEquals(expected,got)
+        assertEquals(expected, got)
     }
 
     @Test
@@ -209,5 +209,13 @@ class UtilsKtTest {
         val got = findLCM(given)
 
         assertEquals(3 * 5 * 7 * 7, got)
+    }
+
+    @Test
+    fun toPrimeFactors() {
+        val given = 204L
+        val got = toPrimeFactors(given)
+        val expected = listOf(2L, 2L, 3L, 17L)
+        assertEquals(expected, got)
     }
 }
