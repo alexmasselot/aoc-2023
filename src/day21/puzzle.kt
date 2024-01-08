@@ -83,7 +83,7 @@ fun main() {
     }
 
     fun part2(input: List<String>): Long {
-        val nbRepeat = 4
+        val nbRepeat = 2
         val inputN = (0..(2 * nbRepeat)).flatMap { input.map { row -> row.repeat(2 * nbRepeat + 1) } }
         val mid = nbRepeat * input.size + (input.size - 1) / 2
         val grown = grow(GardenMap.parseInput(inputN).init(mid, mid), mid)
@@ -98,7 +98,7 @@ fun main() {
         }
         println(blockCount.toStringPad())
         fun extrapolateStepping(nbSteps: Int): Long {
-            val r = (nbSteps - (input.size - 1) / 2) / input.size
+            val r = (nbSteps - (input.size - 1) / 2).toLong() / input.size
 
             println("nbSteps: $nbSteps, r: $r")
             return r.toLong() * r * blockCount[1][nbRepeat] +
